@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace BS.Output.Gimp
+namespace BugShooting.Output.Gimp
 {
   partial class Send : Window
   {

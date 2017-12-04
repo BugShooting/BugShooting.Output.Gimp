@@ -1,4 +1,6 @@
-﻿namespace BS.Output.Gimp
+﻿using BS.Plugin.V3.Output;
+
+namespace BugShooting.Output.Gimp
 {
 
   public class Output: IOutput 
