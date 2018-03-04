@@ -1,13 +1,14 @@
-﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
-using System.Threading.Tasks;
-using System.IO;
-using System.Diagnostics;
-using Microsoft.Win32;
+﻿using BS.Plugin.V3.Common;
 using BS.Plugin.V3.Output;
-using BS.Plugin.V3.Common;
 using BS.Plugin.V3.Utilities;
+using Microsoft.Win32;
+using System;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace BugShooting.Output.Gimp
 {
@@ -44,7 +45,7 @@ namespace BugShooting.Output.Gimp
 
       Output output = new Output(Name,
                                  "Screenshot",
-                                 String.Empty,
+                                 FileHelper.GetFileFormats().First().ID,
                                  false);
 
       return EditOutput(Owner, output);
@@ -64,7 +65,7 @@ namespace BugShooting.Output.Gimp
 
         return new Output(edit.OutputName,
                           edit.FileName,
-                          edit.FileFormat,
+                          edit.FileFormatID,
                           edit.EditFileName);
       }
       else
@@ -81,7 +82,7 @@ namespace BugShooting.Output.Gimp
 
       outputValues.Add("Name", Output.Name);
       outputValues.Add("FileName", Output.FileName);
-      outputValues.Add("FileFormat", Output.FileFormat);
+      outputValues.Add("FileFormatID", Output.FileFormatID.ToString());
       outputValues.Add("EditFileName", Output.EditFileName.ToString());
 
       return outputValues;
@@ -92,7 +93,7 @@ namespace BugShooting.Output.Gimp
     {
       return new Output(OutputValues["Name", this.Name],
                         OutputValues["FileName", "Screenshot"],
-                        OutputValues["FileFormat", ""],
+                        new Guid(OutputValues["FileFormatID", ""]),
                         Convert.ToBoolean(OutputValues["EditFileName", false.ToString()]));
     }
 
@@ -153,9 +154,11 @@ namespace BugShooting.Output.Gimp
 
         }
 
-        string filePath = Path.Combine(Path.GetTempPath(), fileName + "." + FileHelper.GetFileExtension(Output.FileFormat));
+        IFileFormat fileFormat = FileHelper.GetFileFormat(Output.FileFormatID);
 
-        Byte[] fileBytes = FileHelper.GetFileBytes(Output.FileFormat, ImageData);
+        string filePath = Path.Combine(Path.GetTempPath(), fileName + "." + fileFormat.FileExtension);
+
+        Byte[] fileBytes = FileHelper.GetFileBytes(Output.FileFormatID, ImageData);
 
         using (FileStream file = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
         {
